@@ -343,7 +343,7 @@
 	      split('\n').slice(this.origin.y, this.origin.y + this.data.rows)
 	      .map(function (line) {
 	        return line.substr(this.origin.x, this.data.cols) || ' ';
-	      }).
+	      }.bind(this)).
 	      join('\n');
 	  },
 	  _updateDisplayText: function () {
