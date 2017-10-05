@@ -3,9 +3,20 @@
 [![Version](http://img.shields.io/npm/v/aframe-textarea-component.svg?style=flat-square)](https://npmjs.org/package/aframe-textarea-component)
 [![License](http://img.shields.io/npm/l/aframe-textarea-component.svg?style=flat-square)](https://npmjs.org/package/aframe-textarea-component)
 
-A Textarea component for A-Frame.
+A Textarea component for [A-Frame](https://aframe.io).
 
-For [A-Frame](https://aframe.io).
+### Examples
+
+- [Basic Example](https://brianpeiris.github.io/aframe-textarea-component)
+
+![](demo.gif)
+
+### Todo
+
+(pull requests are welcome!)
+
+- Word-wrap support
+- Proportional font support
 
 ### API
 
