@@ -7,7 +7,7 @@ A Textarea component for [A-Frame](https://aframe.io).
 
 ### Examples
 
-- [Basic Example](https://brianpeiris.github.io/aframe-textarea-component/)
+- [Basic Example](https://brianpeiris.github.io/aframe-textarea-component/examples/basic/)
 
 ![](demo.gif)
 
