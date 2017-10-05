@@ -7,7 +7,7 @@ A Textarea component for [A-Frame](https://aframe.io).
 
 ### Examples
 
-- [Basic Example](https://brianpeiris.github.io/aframe-textarea-component)
+- [Basic Example](https://brianpeiris.github.io/aframe-textarea-component/)
 
 ![](demo.gif)
 
@@ -22,11 +22,11 @@ A Textarea component for [A-Frame](https://aframe.io).
 
 | Property | Description | Default Value |
 | -------- | ----------- | ------------- |
-| cols         | number of columns in the textarea             | 40               |
-| rows         | number of rows in the textarea             | 20               |
-| color         | color of the text | black               |
-| backgroundColor         | color of the background | white               |
-| text         | default text in the textarea | ''               |
+| cols            | number of columns in the textareai  | 40    |
+| rows            | number of rows in the textarea      | 20    |
+| color           | color of the text                   | black |
+| backgroundColor | color of the background             | white |
+| text            | default text in the textarea        | ''    |
 
 ### Installation
 
