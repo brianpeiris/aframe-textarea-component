@@ -1,6 +1,6 @@
 {
   "name": "aframe-textarea-component",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "A Textarea component for A-Frame.",
   "main": "index.js",
   "unpkg": "dist/aframe-textarea-component.min.js",
