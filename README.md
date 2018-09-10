@@ -25,7 +25,9 @@ A Textarea component for [A-Frame](https://aframe.io).
 | cols            | number of columns in the textareai  | 40    |
 | rows            | number of rows in the textarea      | 20    |
 | color           | color of the text                   | black |
+| enabled | whether the control can receive keyboard inputs             | true |
 | backgroundColor | color of the background             | white |
+| disabledColor | color of the background if enabled == false             | lightgrey |
 | text            | default text in the textarea        | ''    |
 
 ### Installation
