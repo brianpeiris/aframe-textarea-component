@@ -13,20 +13,22 @@ AFRAME.registerComponent('textarea', {
         rows: {type: 'int', default: 20},
         color: {type: 'color', default: 'black'},
         backgroundColor: {type: 'color', default: 'white'},
+        disabledColor: {type: 'color', default: 'lightgrey'},
+        enabled: {type: 'boolean', default: true},
         text: {type: 'string', default: ''}
     },
     init: function () {
         this.text = null;
         this.lines = [];
         this.lastBlink = 0;
-        this.blinkEnabled = true;
+        this.blinkEnabled = this.data.enabled;
         this.charWidth = this.charHeight = null;
         this.selectionStart = this.selectionEnd = 0;
         this.endIndexInfo = this.startIndexInfo = null;
         this.origin = {x: 0, y: 0};
 
         this.background = document.createElement('a-plane');
-        this.background.setAttribute('color', this.data.backgroundColor);
+        this.background.setAttribute('color', this.data.enabled ? this.data.backgroundColor : this.data.disabledColor);
         this.el.appendChild(this.background);
 
         this.textAnchor = document.createElement('a-entity');
@@ -63,12 +65,25 @@ AFRAME.registerComponent('textarea', {
         this.el.addEventListener('click', this.focus.bind(this));
     },
     update: function (oldData) {
+
         if (this.data.text != oldData.text)
             this._updateTextarea()
         if (this.data.cols != oldData.cols)
             this._updateTextarea()
         if (this.data.rows != oldData.rows)
             this._updateTextarea()
+
+        if (this.data.backgroundColor != oldData.backgroundColor || this.data.disabledColor != oldData.disabledColor) {
+
+            this.background.setAttribute('color', this.data.enabled ? this.data.backgroundColor : this.data.disabledColor);
+        }
+
+        if (this.data.enabled != oldData.enabled) {
+            this.blinkEnabled = this.data.enabled;
+            this.textarea.disabled = !this.data.enabled
+            this.cursorMesh.visible = this.data.enabled
+            this.background.setAttribute('color', this.data.enabled ? this.data.backgroundColor : this.data.disabledColor);
+        }
     },
     focus: function () {
         this.textarea.focus();
@@ -82,7 +97,7 @@ AFRAME.registerComponent('textarea', {
 
         this.textarea.style.whiteSpace = 'pre';
         this.textarea.style.overflow = 'hidden';
-        this.textarea.style.visibility="hidden"
+        this.textarea.style.opacity = '0'
 
         this.textarea.cols = this.data.cols;
         this.textarea.rows = this.data.rows;
