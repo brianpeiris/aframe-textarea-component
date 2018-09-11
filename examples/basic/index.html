@@ -5,7 +5,7 @@
     <title>A-Frame Textarea Component - Basic</title>
     <meta name="description" content="Basic example for Textarea component."></meta>
     <script src="https://aframe.io/releases/0.7.0/aframe.min.js"></script>
-    <script src="../../dist/aframe-textarea-component.min.js"></script>
+    <script src="../../dist/aframe-textarea-component.js"></script>
   </head>
   <body>
     <a-scene>
@@ -15,7 +15,7 @@
       </a-assets>
 
       <a-entity position="0 1.5 -1" textarea="cols: 20; rows: 4; text: this is a 
-multiline textarea; backgroundColor: #01579b; color: white;"></a-entity>
+multiline textarea; backgroundColor: #01579b; color: white; disabledBackgroundColor: red; disabled: false;"></a-entity>
 
       <a-plane src="#groundTexture" rotation="-90 0 0" height="100" width="100"></a-plane>
       <a-light type="ambient" color="#445451"></a-light>

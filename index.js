@@ -9,24 +9,26 @@ if (typeof AFRAME === 'undefined') {
  */
 AFRAME.registerComponent('textarea', {
   schema: {
-    cols: { type: 'int', default: 40 },
-    rows: { type: 'int', default: 20 },
-    color: { type: 'color', default: 'black' },
-    backgroundColor: { type: 'color', default: 'white' },
-    text: { type: 'string', default: '' }
+    cols: {type: 'int', default: 40},
+    rows: {type: 'int', default: 20},
+    color: {type: 'color', default: 'black'},
+    backgroundColor: {type: 'color', default: 'white'},
+    disabledBackgroundColor: {type: 'color', default: 'lightgrey'},
+    disabled: {type: 'boolean', default: false},
+    text: {type: 'string', default: ''}
   },
   init: function () {
     this.text = null;
     this.lines = [];
     this.lastBlink = 0;
-    this.blinkEnabled = true;
+    this.blinkEnabled = !this.data.disabled;
     this.charWidth = this.charHeight = null;
     this.selectionStart = this.selectionEnd = 0;
     this.endIndexInfo = this.startIndexInfo = null;
     this.origin = {x: 0, y: 0};
 
     this.background = document.createElement('a-plane');
-    this.background.setAttribute('color', this.data.backgroundColor);
+    this.background.setAttribute('color', this.data.disabled ? this.data.disabledBackgroundColor : this.data.backgroundColor);
     this.el.appendChild(this.background);
 
     this.textAnchor = document.createElement('a-entity');
@@ -62,19 +64,41 @@ AFRAME.registerComponent('textarea', {
     this.el.addEventListener('origin-changed', this._updateDisplayText.bind(this));
     this.el.addEventListener('click', this.focus.bind(this));
   },
+  update: function (oldData) {
+    if (this.data.text !== oldData.text) {
+      this._updateTextarea();
+    }
+
+    if (this.data.backgroundColor !== oldData.backgroundColor || this.data.disabledBackgroundColor !== oldData.disabledBackgroundColor) {
+      this.background.setAttribute('color', this.data.disabled ? this.data.disabledBackgroundColor : this.data.backgroundColor);
+    }
+
+    if (this.data.disabled !== oldData.disabled) {
+      this.blinkEnabled = !this.data.disabled;
+      this.textarea.disabled = this.data.disabled;
+      this.cursorMesh.visible = !this.data.disabled;
+      this.background.setAttribute('color', this.data.disabled ? this.data.disabledBackgroundColor : this.data.backgroundColor);
+    }
+  },
   focus: function () {
     this.textarea.focus();
   },
   _initTextarea: function () {
     this.textarea = document.createElement('textarea');
+    document.body.appendChild(this.textarea);
+    this._updateTextarea();
+  },
+  _updateTextarea: function () {
     this.textarea.style.whiteSpace = 'pre';
     this.textarea.style.overflow = 'hidden';
+    this.textarea.style.opacity = '0';
+
     this.textarea.cols = this.data.cols;
     this.textarea.rows = this.data.rows;
     this.textarea.value = this.data.text;
     this.textarea.selectionStart = 0;
     this.textarea.selectionEnd = 0;
-    document.body.appendChild(this.textarea);
+
     this._updateIndexInfo();
   },
   _initCursor: function () {
@@ -98,16 +122,18 @@ AFRAME.registerComponent('textarea', {
     const fontWidthFactor = event.detail.fontObj.widthFactor;
     this.charWidth = fontWidthFactor * this.textAnchor.object3DMap.text.scale.x;
     this.charHeight = this.charWidth * layout.lineHeight / fontWidthFactor;
-    this.textAnchor.setAttribute('position', {x:0, y: this.charHeight * this.data.rows / 2, z: 0});
+    this.textAnchor.setAttribute('position', {x: 0, y: this.charHeight * this.data.rows / 2, z: 0});
     this.background.setAttribute('scale', {x: 1.05, y: this.charHeight * this.data.rows * 1.05, z: 1});
     this.background.setAttribute('position', {x: 0, y: 0, z: 0});
     this._emit('char-metrics-changed');
   },
   _checkAndUpdateSelection: function () {
     if (
-      this.selectionStart === this.textarea.selectionStart &&
-      this.selectionEnd === this.textarea.selectionEnd
-    ) { return; }
+            this.selectionStart === this.textarea.selectionStart &&
+            this.selectionEnd === this.textarea.selectionEnd
+        ) {
+      return;
+    }
 
     const lastStart = this.selectionStart;
     const lastEnd = this.selectionEnd;
@@ -139,12 +165,16 @@ AFRAME.registerComponent('textarea', {
     };
   },
   _updateIndexInfo: function () {
-    if (!this.lines.length) { return; }
+    if (!this.lines.length) {
+      return;
+    }
     const lastStart = this.startIndexInfo && this.startIndexInfo.line.index;
     const lastEnd = this.endIndexInfo && this.endIndexInfo.line.index;
     this.startIndexInfo = null;
     this.endIndexInfo = null;
-    var i, startChanged = false, endChanged = false;
+    var i;
+    var startChanged = false;
+    var endChanged = false;
     for (i = 0; i <= this.lines.length; i++) {
       const prevLine = this.lines[i - 1];
       const lineStart = i === this.lines.length ? (prevLine.start + prevLine.length + 1) : this.lines[i].start;
@@ -173,35 +203,35 @@ AFRAME.registerComponent('textarea', {
     var changed = false;
     if (event.detail.end.changed) {
       const end = this.origin.y + this.data.rows - 1;
-      if (this.endIndexInfo.line.index > end) { 
+      if (this.endIndexInfo.line.index > end) {
         this.origin.y = this.endIndexInfo.line.index + 1 - this.data.rows;
         changed = true;
-      }
-      else if (this.endIndexInfo.line.index < this.origin.y) {
+      } else if (this.endIndexInfo.line.index < this.origin.y) {
         this.origin.y = this.endIndexInfo.line.index;
         changed = true;
       }
     }
     if (event.detail.start.changed) {
-      if (this.startIndexInfo.line.index < this.origin.y) { 
+      if (this.startIndexInfo.line.index < this.origin.y) {
         this.origin.y = this.startIndexInfo.line.index;
         changed = true;
       }
     }
-    if (changed) { 
+    if (changed) {
       this._emit('origin-changed');
     }
   },
   _updateHorizontalOrigin: function (event) {
-    if (!this.endIndexInfo) { return; }
+    if (!this.endIndexInfo) {
+      return;
+    }
     var changed = true;
     if (event.detail.end.changed) {
       const endIndex = this.selectionEnd - this.endIndexInfo.line.start;
-      if(endIndex > this.origin.x + this.data.cols) {
+      if (endIndex > this.origin.x + this.data.cols) {
         this.origin.x = endIndex - this.data.cols;
         changed = true;
-      }
-      else if (endIndex < this.origin.x) {
+      } else if (endIndex < this.origin.x) {
         this.origin.x = endIndex;
         changed = true;
       }
@@ -211,13 +241,12 @@ AFRAME.registerComponent('textarea', {
       if (startIndex > this.origin.x + this.data.cols) {
         this.origin.x = startIndex - this.data.cols;
         changed = true;
-      }
-      else if (startIndex < this.origin.x) {
+      } else if (startIndex < this.origin.x) {
         this.origin.x = startIndex;
         changed = true;
       }
     }
-    if (changed) { 
+    if (changed) {
       this._emit('origin-changed');
     }
   },
@@ -226,8 +255,7 @@ AFRAME.registerComponent('textarea', {
       this.blinkEnabled = true;
       this.cursorMat.color.setStyle('black');
       this.cursorMat.transparent = false;
-    }
-    else {
+    } else {
       this.blinkEnabled = false;
       this.cursorMat.color.setStyle('white');
       this.cursorMesh.visible = true;
@@ -235,31 +263,31 @@ AFRAME.registerComponent('textarea', {
     }
   },
   _updateCursorGeometry: function () {
-    if (!this.startIndexInfo) { return; }
+    if (!this.startIndexInfo) {
+      return;
+    }
     this.cursorMesh.geometry = new THREE.Geometry();
     const startLine = Math.max(this.origin.y, this.startIndexInfo.line.index);
     const endLine = Math.min(this.origin.y + this.data.rows - 1, this.endIndexInfo.line.index);
     const maxIndex = this.origin.x + this.data.cols;
     for (var i = startLine; i <= endLine; i++) {
-      const mesh =  new THREE.Mesh(this.cursorGeo, this.cursorMat);
-      var size, offset = 0;
+      const mesh = new THREE.Mesh(this.cursorGeo, this.cursorMat);
+      var size;
+      var offset = 0;
       if (endLine === startLine) {
         offset = Math.max(this.origin.x, this.selectionStart - this.startIndexInfo.line.start);
         const end = Math.min(maxIndex, this.selectionEnd - this.startIndexInfo.line.start);
         size = Math.max(0.2, end - offset);
-      }
-      else {
+      } else {
         var end;
         if (i === this.startIndexInfo.line.index) {
           offset = Math.max(this.origin.x, this.selectionStart - this.startIndexInfo.line.start);
           end = Math.min(maxIndex, this.startIndexInfo.line.length);
-        }
-        else if (i === this.endIndexInfo.line.index) {
+        } else if (i === this.endIndexInfo.line.index) {
           offset = this.origin.x;
           end = Math.min(maxIndex, this.selectionEnd - this.endIndexInfo.line.start);
-        }
-        else {
-          offset = this.origin.x; 
+        } else {
+          offset = this.origin.x;
           end = Math.min(maxIndex, this.lines[i].length);
         }
         size = end - offset;
@@ -293,12 +321,10 @@ AFRAME.registerComponent('textarea', {
     this._emit('lines-changed');
   },
   _getViewportText: function () {
-    return this.text.
-      split('\n').slice(this.origin.y, this.origin.y + this.data.rows)
+    return this.text.split('\n').slice(this.origin.y, this.origin.y + this.data.rows)
       .map(function (line) {
         return line.substr(this.origin.x, this.data.cols) || ' ';
-      }.bind(this)).
-      join('\n');
+      }.bind(this)).join('\n');
   },
   _updateDisplayText: function () {
     this.textAnchor.setAttribute('text', {
@@ -307,7 +333,9 @@ AFRAME.registerComponent('textarea', {
   },
   _checkAndUpdateText: function () {
     const text = this.textarea.value;
-    if (text === this.text) { return; }
+    if (text === this.text) {
+      return;
+    }
     this.text = text;
     this._emit('text-changed');
   }

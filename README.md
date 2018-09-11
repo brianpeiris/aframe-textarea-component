@@ -20,13 +20,15 @@ A Textarea component for [A-Frame](https://aframe.io).
 
 ### API
 
-| Property | Description | Default Value |
-| -------- | ----------- | ------------- |
-| cols            | number of columns in the textareai  | 40    |
-| rows            | number of rows in the textarea      | 20    |
-| color           | color of the text                   | black |
-| backgroundColor | color of the background             | white |
-| text            | default text in the textarea        | ''    |
+| Property                  | Description                                       | Default Value |
+| --------                  | -----------                                       | ------------- |
+| cols                      | number of columns in the textarea                 | 40            |
+| rows                      | number of rows in the textarea                    | 20            |
+| color                     | color of the text                                 | black         |
+| disabled                  | whether the control can receive keyboard inputs   | false         |
+| backgroundColor           | color of the background                           | white         |
+| disabledBackgroundColor   | color of the background when disabled             | lightgrey     |
+| text                      | default text in the textarea                      | ''            |
 
 ### Installation
 
