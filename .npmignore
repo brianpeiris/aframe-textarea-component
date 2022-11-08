@@ -7,3 +7,7 @@ npm-debug.log
 .component
 package-lock.json
 yarn.lock
+tests/
+demo.gif
+*.html
+webpack.config.js
