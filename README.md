@@ -49,8 +49,9 @@ Install and use by directly including the [browser files](dist):
 </head>
 
 <body>
-  <a-scene>
-    <a-entity textarea></a-entity>
+  <a-scene background="color: lightblue">
+    <a-entity position="0 1.5 -1" textarea></a-entity>
+    <a-camera><a-cursor></a-cursor></a-camera>
   </a-scene>
 </body>
 ```
