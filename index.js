@@ -9,14 +9,14 @@ if (typeof AFRAME === 'undefined') {
  */
 AFRAME.registerComponent('textarea', {
   schema: {
-    cols: {type: 'int', default: 40},
-    rows: {type: 'int', default: 20},
-    color: {type: 'color', default: 'black'},
-    backgroundColor: {type: 'color', default: 'white'},
-    selectionColor: {type: 'color', default: 'grey'},
-    disabledBackgroundColor: {type: 'color', default: 'lightgrey'},
-    disabled: {type: 'boolean', default: false},
-    text: {type: 'string', default: ''}
+    cols: { type: 'int', default: 40 },
+    rows: { type: 'int', default: 20 },
+    color: { type: 'color', default: 'black' },
+    backgroundColor: { type: 'color', default: 'white' },
+    selectionColor: { type: 'color', default: 'grey' },
+    disabledBackgroundColor: { type: 'color', default: 'lightgrey' },
+    disabled: { type: 'boolean', default: false },
+    text: { type: 'string', default: '' }
   },
   init: function () {
     this.text = null;
@@ -27,7 +27,7 @@ AFRAME.registerComponent('textarea', {
     this.charWidth = this.charHeight = null;
     this.selectionStart = this.selectionEnd = 0;
     this.endIndexInfo = this.startIndexInfo = null;
-    this.origin = {x: 0, y: 0};
+    this.origin = { x: 0, y: 0 };
     this.textarea = null;
 
     this.background = document.createElement('a-plane');
@@ -133,9 +133,9 @@ AFRAME.registerComponent('textarea', {
     const fontWidthFactor = event.detail.fontObj.widthFactor;
     this.charWidth = fontWidthFactor * this.textAnchor.object3DMap.text.scale.x;
     this.charHeight = this.charWidth * layout.lineHeight / fontWidthFactor;
-    this.textAnchor.setAttribute('position', {x: 0, y: this.charHeight * this.data.rows / 2, z: 0});
-    this.background.setAttribute('scale', {x: 1.05, y: this.charHeight * this.data.rows * 1.05, z: 1});
-    this.background.setAttribute('position', {x: 0, y: 0, z: 0});
+    this.textAnchor.setAttribute('position', { x: 0, y: this.charHeight * this.data.rows / 2, z: 0 });
+    this.background.setAttribute('scale', { x: 1.05, y: this.charHeight * this.data.rows * 1.05, z: 1 });
+    this.background.setAttribute('position', { x: 0, y: 0, z: 0 });
     this._emit('char-metrics-changed');
   },
   _checkAndUpdateSelection: function () {
@@ -153,8 +153,8 @@ AFRAME.registerComponent('textarea', {
     this.selectionEnd = this.textarea.selectionEnd;
 
     this._emit('selection-changed', {
-      start: {old: lastStart, new: this.selectionStart, changed: this.selectionStart !== lastStart},
-      end: {old: lastEnd, new: this.selectionEnd, changed: this.selectionEnd !== lastEnd}
+      start: { old: lastStart, new: this.selectionStart, changed: this.selectionStart !== lastStart },
+      end: { old: lastEnd, new: this.selectionEnd, changed: this.selectionEnd !== lastEnd }
     });
   },
   _setShowCursorTimeout: function () {
@@ -202,9 +202,9 @@ AFRAME.registerComponent('textarea', {
     const lastEnd = this.endIndexInfo && this.endIndexInfo.line.index;
     this.startIndexInfo = null;
     this.endIndexInfo = null;
-    var i;
-    var startChanged = false;
-    var endChanged = false;
+    let i;
+    let startChanged = false;
+    let endChanged = false;
     for (i = 0; i <= this.lines.length; i++) {
       const prevLine = this.lines[i - 1];
       const lineStart = i === this.lines.length ? (prevLine.start + prevLine.length + 1) : this.lines[i].start;
@@ -224,13 +224,13 @@ AFRAME.registerComponent('textarea', {
     }
     if (startChanged || endChanged) {
       this._emit('index-info-changed', {
-        start: {changed: startChanged},
-        end: {changed: endChanged}
+        start: { changed: startChanged },
+        end: { changed: endChanged }
       });
     }
   },
   _updateOrigin: function (event) {
-    var changed = false;
+    let changed = false;
     if (event.detail.end.changed) {
       const end = this.origin.y + this.data.rows - 1;
       if (this.endIndexInfo.line.index > end) {
@@ -255,7 +255,7 @@ AFRAME.registerComponent('textarea', {
     if (!this.endIndexInfo) {
       return;
     }
-    var changed = true;
+    let changed = true;
     if (event.detail.end.changed) {
       const endIndex = this.selectionEnd - this.endIndexInfo.line.start;
       if (endIndex > this.origin.x + this.data.cols) {
@@ -301,15 +301,15 @@ AFRAME.registerComponent('textarea', {
     const maxIndex = this.origin.x + this.data.cols;
     const geos = [];
     const mesh = new THREE.Object3D();
-    for (var i = startLine; i <= endLine; i++) {
-      var size;
-      var offset = 0;
+    for (let i = startLine; i <= endLine; i++) {
+      let size;
+      let offset = 0;
       if (endLine === startLine) {
         offset = Math.max(this.origin.x, this.selectionStart - this.startIndexInfo.line.start);
         const end = Math.min(maxIndex, this.selectionEnd - this.startIndexInfo.line.start);
         size = Math.max(0.2, end - offset);
       } else {
-        var end;
+        let end;
         if (i === this.startIndexInfo.line.index) {
           offset = Math.max(this.origin.x, this.selectionStart - this.startIndexInfo.line.start);
           end = Math.min(maxIndex, this.startIndexInfo.line.length);
@@ -344,8 +344,8 @@ AFRAME.registerComponent('textarea', {
   _updateLines: function () {
     this.lines = [];
     const lines = this.text.split('\n');
-    var counter = 0;
-    for (var i = 0; i < lines.length; i++) {
+    let counter = 0;
+    for (let i = 0; i < lines.length; i++) {
       this.lines[i] = {
         index: i,
         length: lines[i].length,

@@ -4,14 +4,14 @@
  * __init.test.js is run before every test case.
  */
 window.debug = true;
-var AScene = require('aframe').AScene
+const AScene = require('aframe').AScene;
 
 navigator.getVRDisplays = function () {
-  var resolvePromise = Promise.resolve();
-  var mockVRDisplay = {
+  const resolvePromise = Promise.resolve();
+  const mockVRDisplay = {
     requestPresent: resolvePromise,
     exitPresent: resolvePromise,
-    getPose: function () { return {orientation: null, position: null}; },
+    getPose: function () { return { orientation: null, position: null }; },
     requestAnimationFrame: function () { return 1; }
   };
   return Promise.resolve([mockVRDisplay]);
@@ -23,15 +23,15 @@ setup(function () {
   this.sinon.stub(AScene.prototype, 'render');
   this.sinon.stub(AScene.prototype, 'resize');
   this.sinon.stub(AScene.prototype, 'setupRenderer').callsFake(function () {
-    this.renderer = { shadowMap: {}, getContext: sandbox.stub(), xr: {dispose: sandbox.stub()} };
+    this.renderer = { shadowMap: {}, getContext: sandbox.stub(), xr: { dispose: sandbox.stub() } };
   });
 });
 
 teardown(function () {
   // Clean up any attached elements.
-  var attachedEls = ['canvas', 'a-assets', 'a-scene'];
-  var els = document.querySelectorAll(attachedEls.join(','));
-  for (var i = 0; i < els.length; i++) {
+  const attachedEls = ['canvas', 'a-assets', 'a-scene'];
+  const els = document.querySelectorAll(attachedEls.join(','));
+  for (let i = 0; i < els.length; i++) {
     els[i].parentNode.removeChild(els[i]);
   }
   this.sinon.restore();
