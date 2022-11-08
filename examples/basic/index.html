@@ -4,18 +4,19 @@
     <meta charset="utf-8">
     <title>A-Frame Textarea Component - Basic</title>
     <meta name="description" content="Basic example for Textarea component."></meta>
-    <script src="https://aframe.io/releases/0.7.0/aframe.min.js"></script>
+    <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
     <script src="../../dist/aframe-textarea-component.js"></script>
   </head>
   <body>
     <a-scene>
       <a-assets>
-        <img id="groundTexture" src="https://cdn.aframe.io/a-painter/images/floor.jpg">
-        <img id="skyTexture" src="https://cdn.aframe.io/a-painter/images/sky.jpg">
+        <img id="groundTexture" crossorigin="anonymous" src="https://cdn.aframe.io/a-painter/images/floor.jpg">
+        <img id="skyTexture" crossorigin="anonymous" src="https://cdn.aframe.io/a-painter/images/sky.jpg">
       </a-assets>
 
-      <a-entity position="0 1.5 -1" textarea="cols: 20; rows: 4; text: this is a 
-multiline textarea; backgroundColor: #01579b; color: white; disabledBackgroundColor: red; disabled: false;"></a-entity>
+      <a-entity class="textarea" position="0 1.5 -1.2" textarea="cols: 20; rows: 4; text: this is a 
+multiline textarea; backgroundColor: #01579b; color: white; selectionColor: black; disabledBackgroundColor: red; disabled: false;"></a-entity>
+      <a-entity class="textarea" position="-1.2 1.5 -1" rotation="0 30 0" textarea="text: another textarea; cols: 20; rows: 8;"></a-entity>
 
       <a-plane src="#groundTexture" rotation="-90 0 0" height="100" width="100"></a-plane>
       <a-light type="ambient" color="#445451"></a-light>

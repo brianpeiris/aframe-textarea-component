@@ -9,14 +9,12 @@ A Textarea component for [A-Frame](https://aframe.io).
 
 - [Basic Example](https://brianpeiris.github.io/aframe-textarea-component/examples/basic/)
 
-![](demo.gif)
+![Demo gif](demo.gif)
 
-### Todo
+### Known issues
 
-(pull requests are welcome!)
-
-- Word-wrap support
-- Proportional font support
+- Does not support text word-wrap.
+- Only supports monospace fonts.
 
 ### API
 
@@ -26,9 +24,16 @@ A Textarea component for [A-Frame](https://aframe.io).
 | rows                      | number of rows in the textarea                    | 20            |
 | color                     | color of the text                                 | black         |
 | disabled                  | whether the control can receive keyboard inputs   | false         |
+| selectionColor            | color of selected text                            | grey          |
 | backgroundColor           | color of the background                           | white         |
 | disabledBackgroundColor   | color of the background when disabled             | lightgrey     |
 | text                      | default text in the textarea                      | ''            |
+
+| Method                    | Description                                       |
+| --------                  | -----------                                       |
+| getText()                 | Get the current text in the textarea              |
+| focus()                   | Focus the textarea                                |
+| blur()                    | Blur the textarea                                 |
 
 ### Installation
 
@@ -39,7 +44,7 @@ Install and use by directly including the [browser files](dist):
 ```html
 <head>
   <title>My A-Frame Scene</title>
-  <script src="https://aframe.io/releases/0.7.0/aframe.min.js"></script>
+  <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
   <script src="https://unpkg.com/aframe-textarea-component/dist/aframe-textarea-component.min.js"></script>
 </head>
 
@@ -49,17 +54,6 @@ Install and use by directly including the [browser files](dist):
   </a-scene>
 </body>
 ```
-
-<!-- If component is accepted to the Registry, uncomment this. -->
-<!--
-Or with [angle](https://npmjs.com/package/angle/), you can install the proper
-version of the component straight into your HTML file, respective to your
-version of A-Frame:
-
-```sh
-angle install aframe-textarea-component
-```
--->
 
 #### npm
 

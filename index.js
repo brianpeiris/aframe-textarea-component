@@ -13,6 +13,7 @@ AFRAME.registerComponent('textarea', {
     rows: {type: 'int', default: 20},
     color: {type: 'color', default: 'black'},
     backgroundColor: {type: 'color', default: 'white'},
+    selectionColor: {type: 'color', default: 'grey'},
     disabledBackgroundColor: {type: 'color', default: 'lightgrey'},
     disabled: {type: 'boolean', default: false},
     text: {type: 'string', default: ''}
@@ -21,15 +22,18 @@ AFRAME.registerComponent('textarea', {
     this.text = null;
     this.lines = [];
     this.lastBlink = 0;
+    this.showCursorTimeout = 0;
     this.blinkEnabled = !this.data.disabled;
     this.charWidth = this.charHeight = null;
     this.selectionStart = this.selectionEnd = 0;
     this.endIndexInfo = this.startIndexInfo = null;
     this.origin = {x: 0, y: 0};
+    this.textarea = null;
 
     this.background = document.createElement('a-plane');
     this.background.setAttribute('color', this.data.disabled ? this.data.disabledBackgroundColor : this.data.backgroundColor);
     this.el.appendChild(this.background);
+    this.el.setObject3D('background', this.background.object3D);
 
     this.textAnchor = document.createElement('a-entity');
     this.el.appendChild(this.textAnchor);
@@ -52,10 +56,12 @@ AFRAME.registerComponent('textarea', {
     this.el.addEventListener('char-metrics-changed', this._updateCursorGeometry.bind(this));
     this.el.addEventListener('text-changed', this._updateLines.bind(this));
     this.el.addEventListener('text-changed', this._updateDisplayText.bind(this));
+    this.el.addEventListener('text-changed', this._setShowCursorTimeout.bind(this));
     this.el.addEventListener('selection-changed', this._updateIndexInfo.bind(this));
     this.el.addEventListener('selection-changed', this._updateCursorStyle.bind(this));
     this.el.addEventListener('selection-changed', this._updateCursorGeometry.bind(this));
     this.el.addEventListener('selection-changed', this._updateHorizontalOrigin.bind(this));
+    this.el.addEventListener('selection-changed', this._setShowCursorTimeout.bind(this));
     this.el.addEventListener('lines-changed', this._updateIndexInfo.bind(this));
     this.el.addEventListener('index-info-changed', this._updateOrigin.bind(this));
     this.el.addEventListener('index-info-changed', this._updateCursorGeometry.bind(this));
@@ -82,6 +88,12 @@ AFRAME.registerComponent('textarea', {
   },
   focus: function () {
     this.textarea.focus();
+  },
+  blur: function () {
+    this.textarea.blur();
+  },
+  getText: function () {
+    return this.textarea.value;
   },
   _initTextarea: function () {
     this.textarea = document.createElement('textarea');
@@ -110,7 +122,6 @@ AFRAME.registerComponent('textarea', {
       opacity: 0.5
     });
     this.cursorMesh = new THREE.Mesh(this.cursorGeo, this.cursorMat);
-    window.cursorMesh = this.cursorMesh;
     this.cursor.setObject3D('mesh', this.cursorMesh);
     this.el.appendChild(this.cursor);
   },
@@ -129,9 +140,9 @@ AFRAME.registerComponent('textarea', {
   },
   _checkAndUpdateSelection: function () {
     if (
-            this.selectionStart === this.textarea.selectionStart &&
-            this.selectionEnd === this.textarea.selectionEnd
-        ) {
+      this.selectionStart === this.textarea.selectionStart &&
+      this.selectionEnd === this.textarea.selectionEnd
+    ) {
       return;
     }
 
@@ -146,13 +157,32 @@ AFRAME.registerComponent('textarea', {
       end: {old: lastEnd, new: this.selectionEnd, changed: this.selectionEnd !== lastEnd}
     });
   },
-  tick: function (time) {
-    if (time - this.lastBlink > 500 && this.blinkEnabled) {
-      this.cursorMesh.visible = !this.cursorMesh.visible;
-      this.lastBlink = time;
-    }
+  _setShowCursorTimeout: function () {
+    this.showCursorTimeout = 500;
+  },
+  tick: function (time, delta) {
+    this._updateCursorVisibility(delta);
     this._checkAndUpdateSelection();
     this._checkAndUpdateText();
+  },
+  _updateCursorVisibility: function (delta) {
+    if (document.activeElement === this.textarea) {
+      if (this.showCursorTimeout > 0) {
+        this.showCursorTimeout -= delta;
+        this.cursorMesh.visible = true;
+      } else {
+        if (this.blinkEnabled) {
+          if (Date.now() - this.lastBlink > 500) {
+            this.cursorMesh.visible = !this.cursorMesh.visible;
+            this.lastBlink = Date.now();
+          }
+        } else if (this.selectionStart !== this.selectionEnd) {
+          this.cursorMesh.visible = true;
+        }
+      }
+    } else {
+      this.cursorMesh.visible = false;
+    }
   },
   _getIndexInfo: function (lineIndex, textIndex) {
     const y = Math.max(0, lineIndex);
@@ -257,7 +287,7 @@ AFRAME.registerComponent('textarea', {
       this.cursorMat.transparent = false;
     } else {
       this.blinkEnabled = false;
-      this.cursorMat.color.setStyle('white');
+      this.cursorMat.color.setStyle(this.data.selectionColor);
       this.cursorMesh.visible = true;
       this.cursorMat.transparent = true;
     }
@@ -266,12 +296,12 @@ AFRAME.registerComponent('textarea', {
     if (!this.startIndexInfo) {
       return;
     }
-    this.cursorMesh.geometry = new THREE.Geometry();
     const startLine = Math.max(this.origin.y, this.startIndexInfo.line.index);
     const endLine = Math.min(this.origin.y + this.data.rows - 1, this.endIndexInfo.line.index);
     const maxIndex = this.origin.x + this.data.cols;
+    const geos = [];
+    const mesh = new THREE.Object3D();
     for (var i = startLine; i <= endLine; i++) {
-      const mesh = new THREE.Mesh(this.cursorGeo, this.cursorMat);
       var size;
       var offset = 0;
       if (endLine === startLine) {
@@ -302,9 +332,14 @@ AFRAME.registerComponent('textarea', {
         -i * this.charHeight + (this.charHeight * this.data.rows) / 2 - this.charHeight / 2 + this.origin.y * this.charHeight,
         0.002
       );
-      this.cursorMesh.geometry.mergeMesh(mesh);
+      mesh.updateMatrix();
+      const geo = new THREE.PlaneGeometry(1, 1);
+      geo.applyMatrix4(mesh.matrix);
+      geos.push(geo);
     }
+    this.cursorMesh.geometry = THREE.BufferGeometryUtils.mergeBufferGeometries(geos);
     this.cursorMesh.geometry.verticesNeedUpdate = true;
+    this.cursorMesh.geometry.needsUpdate = true;
   },
   _updateLines: function () {
     this.lines = [];

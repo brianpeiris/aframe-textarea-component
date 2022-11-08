@@ -23,5 +23,9 @@ suite('textarea component', function () {
       assert.equal(component.textarea.selectionStart, 0);
       assert.equal(component.textarea.selectionEnd, 0);
     });
+
+    test('can be accessed', function () {
+      assert.equal(component.getText(), 'hello world');
+    });
   });
 });

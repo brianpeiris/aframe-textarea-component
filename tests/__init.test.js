@@ -18,11 +18,13 @@ navigator.getVRDisplays = function () {
 };
 
 setup(function () {
-  this.sinon = sinon.sandbox.create();
+  const sandbox = this.sinon = sinon.createSandbox();
   // Stubs to not create a WebGL context since Travis CI runs headless.
   this.sinon.stub(AScene.prototype, 'render');
   this.sinon.stub(AScene.prototype, 'resize');
-  this.sinon.stub(AScene.prototype, 'setupRenderer');
+  this.sinon.stub(AScene.prototype, 'setupRenderer').callsFake(function () {
+    this.renderer = { shadowMap: {}, getContext: sandbox.stub(), xr: {dispose: sandbox.stub()} };
+  });
 });
 
 teardown(function () {
